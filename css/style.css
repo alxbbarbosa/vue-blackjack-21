@@ -1,0 +1,56 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+img {}
+
+body {
+    background-image: url("../assets/wallpaper.jpg");
+    background-color: green;
+}
+
+.title {
+    color: yellow;
+    text-transform: uppercase;
+    margin: 10px 0;
+    text-shadow: 1px 1px 2px black, 0 0 25px blue, 0 0 5px darkblue;
+}
+
+.background-game {
+    background: green;
+    min-height: 450px;
+    border-radius: 20px;
+    box-shadow: 0 0 0.5em #F87, 0 0 0.5em #F87;
+}
+
+.player {
+    width: 80px;
+    height: 80px;
+}
+
+.player-text {
+    color: white;
+    text-shadow: 0 0 0.2em #F87, 0 0 0.2em #F87;
+}
+
+.active img {
+    background: yellow;
+    border: 2px solid orange;
+    border-radius: 20px;
+}
+
+img.carts {
+    height: 180px;
+    margin: 10px;
+}
+
+img.cart {
+    height: 180px;
+    margin: 10px;
+    box-shadow: 5px 5px 5px #000;
+}
+
+.cards_player {
+    display: inline;
+}

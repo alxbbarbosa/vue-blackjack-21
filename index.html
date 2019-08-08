@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Jogo 21 Vue JS</title>
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="shortcut icon" href="assets/favicon.png" type="image/png">
+
+</head>
+
+<body>
+    <div id="app" class="container  text-center">
+        <h1 class="title">Blackjack 21 - Vue JS</h1>
+        <div class="row">
+            <div v-bind:class="['col-6', playerActived == 1 ? 'active' : '']">
+                <img src="assets/player.png" alt="Player One" class="player">
+                <p class="player-text">You
+                    <span class="badge badge-default">{{ cardsPlayedPlayerOne }}</span>
+                </p>
+                <p class="player-text"><strong>Score: </strong>{{ playerOne.score }}</p>
+            </div>
+            <div v-bind:class="['col-6', playerActived == 2 ? 'active' : '']">
+                <img src="assets/computer.png" alt="Player One" class="player">
+                <p class="player-text">Computer
+                    <span class="badge badge-default">{{ cardsPlayedPlayerTwo }}</span>
+                </p>
+                <div v-if="gameOverShow == true">
+                    <p class="player-text"><strong>Score: </strong>{{ playerTwo.score }}</p>
+                </div>
+                <div v-else>
+                    {{ playerTwoThinking }}
+                </div>
+            </div>
+            <div class="controls col">
+                <div v-if="playerOneIsPlaying == true" class="col-12">
+                    <a href="#" class="btn btn-primary btn-sm" @click.prevent="passYourTurn">Stop asking</a>
+                    <a href="#" class="btn btn-danger btn-sm" @click.prevent="resetGame">Restart</a>
+                </div>
+            </div>
+        </div>
+        <br>
+        <div class="row background-game">
+            <div class="col-5">
+                <div v-if="showPlayerOne == true">
+                    <div v-if="playerOneIsPlaying == true">
+                        <p v-for="(card, index) in allPlayerOneCards" class="cards_player">
+                            <a href="#" @click.prevent="giveBackPlayerOne(index)">
+                                <img v-bind:src="'assets/cards/'+ card.file" alt="Card" class="cart">
+                            </a>
+                        </p>
+                    </div>
+                    <div v-else>
+                        <p v-for="(card, index) in allPlayerOneCards" class="cards_player">
+                            <img v-bind:src="'assets/cards/'+ card.file" alt="Card" class="cart">
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-2">
+                <div v-if="playerOneIsPlaying === true">
+                    <a href="#" @click.prevent="askDealer">
+                        <img src="assets/cards/card_stack.png" alt="" class="carts">
+                    </a>
+                </div>
+                <div v-else>
+                    <img src="assets/cards/card_stack.png" alt="" class="carts">
+                </div>
+            </div>
+
+            <div class="col-5">
+                <div v-if="gameOverShow == true">
+                    <p v-for="(card, index) in allPlayerTwoCards" class="cards_player">
+                        <img v-bind:src="'assets/cards/'+ card.file" alt="Card" class="cart">
+                    </p>
+                </div>
+                <div v-else>
+                    <p v-for="(card, index) in allPlayerTwoCards" class="cards_player">
+                        <!--<a href="#" @click.prevent="giveBackPlayerTwo(index)"> -->
+                        <img v-bind:src="'assets/cards/card_back.png'" alt="Card" class="cart">
+                        <!--</a>-->
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+<script src="vue.js"></script>
+<script src="./node_modules/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    new Vue({
+        el: '#app',
+        data: {
+            playerActived: 1,
+            showPlayerOne: false,
+            showPlayerTwo: false,
+            gameOverShow: false,
+            playing: false,
+            playerOneIsPlaying: true,
+            playerTwoThinking: '',
+            playerOne: {
+                score: 0,
+                cards: [],
+            },
+            playerTwo: {
+                score: 0,
+                cards: [],
+            },
+            gameCards: {},
+            allCards: {
+                'paus': [{
+                        type: 'paus',
+                        value: 1,
+                        file: 'paus/1.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 2,
+                        file: 'paus/2.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 3,
+                        file: 'paus/3.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 4,
+                        file: 'paus/4.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 5,
+                        file: 'paus/5.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 6,
+                        file: 'paus/6.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 7,
+                        file: 'paus/7.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 8,
+                        file: 'paus/8.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 9,
+                        file: 'paus/9.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 10,
+                        file: 'paus/10.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 10,
+                        file: 'paus/dama.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 10,
+                        file: 'paus/valete.png'
+                    },
+                    {
+                        type: 'paus',
+                        value: 10,
+                        file: 'paus/rei.png'
+                    }
+                ],
+                'copas': [{
+                        type: 'copas',
+                        value: 1,
+                        file: 'copas/1.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 2,
+                        file: 'copas/2.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 3,
+                        file: 'copas/3.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 4,
+                        file: 'copas/4.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 5,
+                        file: 'copas/5.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 6,
+                        file: 'copas/6.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 7,
+                        file: 'copas/7.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 8,
+                        file: 'copas/8.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 9,
+                        file: 'copas/9.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 10,
+                        file: 'copas/10.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 10,
+                        file: 'copas/dama.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 10,
+                        file: 'copas/valete.png'
+                    },
+                    {
+                        type: 'copas',
+                        value: 10,
+                        file: 'copas/rei.png'
+                    }
+                ],
+                'espadas': [{
+                        type: 'espadas',
+                        value: 1,
+                        file: 'espadas/1.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 2,
+                        file: 'espadas/2.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 3,
+                        file: 'espadas/3.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 4,
+                        file: 'espadas/4.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 5,
+                        file: 'espadas/5.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 6,
+                        file: 'espadas/6.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 7,
+                        file: 'espadas/7.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 8,
+                        file: 'espadas/8.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 9,
+                        file: 'espadas/9.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 10,
+                        file: 'espadas/10.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 10,
+                        file: 'espadas/dama.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 10,
+                        file: 'espadas/valete.png'
+                    },
+                    {
+                        type: 'espadas',
+                        value: 10,
+                        file: 'espadas/rei.png'
+                    }
+                ],
+                'ouros': [{
+                        type: 'ouros',
+                        value: 1,
+                        file: 'ouros/1.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 2,
+                        file: 'ouros/2.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 3,
+                        file: 'ouros/3.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 4,
+                        file: 'ouros/4.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 5,
+                        file: 'ouros/5.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 6,
+                        file: 'ouros/6.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 7,
+                        file: 'ouros/7.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 8,
+                        file: 'ouros/8.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 9,
+                        file: 'ouros/9.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 10,
+                        file: 'ouros/10.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 10,
+                        file: 'ouros/dama.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 10,
+                        file: 'ouros/valete.png'
+                    },
+                    {
+                        type: 'ouros',
+                        value: 10,
+                        file: 'ouros/rei.png'
+                    }
+                ]
+            },
+            cards: [],
+            cardSelected: '',
+        },
+        methods: {
+            startGame() {
+                this.gameCards = this.allCards
+                /* Necessário distribuir 3 cartas para iniciar */
+                this.playerOne.cards = this.distribute()
+                this.playerTwo.cards = this.distribute()
+            },
+            distribute() {
+                if ((this.gameCards.espadas.length + this.gameCards.copas.length + this.gameCards.ouros.length +
+                        this.gameCards.paus.length) > 6) {
+                    let cards = []
+                    for (var i = 0; i < 2; i++) {
+                        cards.push(this.buyCard())
+                    }
+                    return cards
+                }
+                return false
+            },
+            changePlayer() {
+                this.playerActived = this.playerActived == 1 ? 2 : 1
+                this.cardSelected = ''
+            },
+            buyCard() {
+                while ((card = this.searchCard()) === undefined) {
+                    //
+                }
+                return card
+            },
+            searchCard() {
+                // Random way of choice
+                let cardIndex = Math.floor(Math.random() * 13)
+                let typeCardIndex = Math.floor(Math.random() * 4)
+                let typeCard = ''
+
+                switch (typeCardIndex) {
+                    case 0:
+                        typeCard = 'paus';
+                        break;
+                    case 1:
+                        typeCard = 'copas';
+                        break;
+                    case 2:
+                        typeCard = 'espadas';
+                        break;
+                    case 3:
+                        typeCard = 'ouros';
+                        break;
+                }
+                this.cards = this.gameCards[typeCard]
+                if (cardIndex in this.cards) {
+                    if (this.cards[cardIndex] !== undefined) {
+                        this.gameCards[typeCard] = this.gameCards[typeCard].filter(function (cardObj,
+                            index) {
+                            if (index !== cardIndex) return cardObj
+                        })
+                    }
+                    return this.cards[cardIndex]
+                }
+            },
+            playerOneChecking() {
+                var sum = 0
+                this.playerOne.cards.forEach(function (item, index) {
+                    sum += item.value
+                })
+                return sum
+            },
+            playerTwoChecking() {
+                var sum = 0
+                this.playerTwo.cards.forEach(function (item, index) {
+                    sum += item.value
+                })
+                return sum
+            },
+            showPlayerOneCards() {
+                this.showPlayerOne = true
+                this.showPlayerTwo = true
+            },
+            buyCardPlayerOne() {
+                this.playerOne.cards.push(this.buyCard())
+                this.playerOne.score = this.playerOneChecking()
+            },
+            buyCardPlayerTwo() {
+                this.playerTwo.cards.push(this.buyCard())
+                this.playerTwo.score = this.playerTwoChecking()
+            },
+            giveBackPlayerOne(index) {
+                card = this.playerOne.cards[index]
+                this.gameCards[card.type].push(card)
+                this.playerOne.cards.splice(index, 1)
+            },
+            giveBackPlayerTwo(index) {
+                card = this.playerTwo.cards[index]
+                this.gameCards[card.type].push(card)
+                this.playerTwo.cards.splice(index, 1)
+            },
+            askDealer() {
+                if (this.playing === false) {
+                    this.startGame()
+                    this.playerOne.score = this.playerOneChecking()
+                    this.playerTwo.score = this.playerTwoChecking()
+                    this.showPlayerOneCards()
+                    this.playing = true
+                } else {
+                    this.buyCardPlayerOne()
+                }
+
+            },
+            passYourTurn() {
+                this.changePlayer()
+                this.playerOneIsPlaying = false
+                setTimeout(this.playerTwoIsPlaying(), 5000)
+            },
+            playerTwoIsPlaying() {
+                while (this.playing !== false) {
+                    if (this.playerTwo.score < 10) {
+                        this.buyCardPlayerTwo()
+                    } else {
+                        let n = 0
+                        if (this.playerTwo.score > 18) {
+                            setTimeout(function () {
+                                n = Math.floor(Math.random() * 10)
+                            }, 5000)
+                            if ((n % 2) == 0) {
+                                this.gameOver()
+                            } else {
+                                this.buyCardPlayerTwo()
+                            }
+                        } else {
+                            setTimeout(function () {
+                                n = Math.floor(Math.random() * 10)
+                            }, 5000)
+                            if (n > 5) {
+                                this.gameOver()
+                            } else {
+                                this.buyCardPlayerTwo()
+                            }
+                        }
+                    }
+                }
+            },
+            gameOver() {
+                let vuejs = this
+                this.playing = false
+                setTimeout(function () {
+                    if (vuejs.playerOne.score <= 21 && vuejs.playerOne.score > vuejs.playerTwo.score)
+                        swal("Hey Very Good!", "Player One Wins!!", "success")
+                    // alert('Player One Wins!')
+                    else if (vuejs.playerTwo.score <= 21 && vuejs.playerTwo.score > vuejs.playerOne
+                        .score)
+                        swal("Oh Oh", "Player Two Wins!!", "error")
+                    //alert('Player Two Wins!')
+                    else if (vuejs.playerOne.score > 21)
+                        swal("Sorry", "Player Two Wins!!", "error")
+                    //alert('Player Two Wins!')
+                    else if (vuejs.playerTwo.score > 21)
+                        swal("Hey Good Job!", "Player One Wins!!", "success")
+                    // alert('Player One Wins!')
+                    else
+                        swal("Ops", "Tied Game!!", "info")
+                    //alert('Tied Game')
+                    vuejs.gameOverShow = true
+                }, 1000)
+
+                setTimeout(this.resetGame, 10000)
+            },
+            resetGame() {
+                this.gameCards = this.allCards
+                this.gameOverShow = false
+                this.playerOneIsPlaying = true
+                this.playing = false
+                this.playerOne.score = 0
+                this.playerTwo.score = 0
+                this.cardSelected = ''
+                this.playerActived = 1
+                this.playerOne.cards = []
+                this.playerTwo.cards = []
+            }
+        },
+        computed: {
+            cardsPlayedPlayerOne() {
+                return this.playerOne.cards.length
+            },
+            cardsPlayedPlayerTwo() {
+                return this.playerTwo.cards.length
+            },
+            cardToShow() {
+                return this.cardSelected.file
+            },
+            allPlayerOneCards() {
+                return this.playerOne.cards
+            },
+            allPlayerTwoCards() {
+                return this.playerTwo.cards
+            }
+        },
+        watch: {
+            'playerOne.score': function (val) {
+                if (val >= 21) {
+                    this.gameOver()
+                }
+            },
+            'playerTwo.score': function (val) {
+                if (val >= 21) {
+                    this.gameOver()
+                }
+            }
+        },
+    })
+</script>
+
+</html>
